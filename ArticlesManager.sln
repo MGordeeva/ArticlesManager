@@ -5,7 +5,9 @@ VisualStudioVersion = 17.4.33110.190
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ArticlesSender", "ArticlesManager\ArticlesSender.csproj", "{A8E370EE-ACA2-4BF1-9BCE-BE1780BCC6FC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArticlesReceiver", "ArticlesReceiver\ArticlesReceiver.csproj", "{9DFEE295-0913-4FB4-9470-BE8DBA04C0D3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ArticlesReceiver", "ArticlesReceiver\ArticlesReceiver.csproj", "{9DFEE295-0913-4FB4-9470-BE8DBA04C0D3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArticlesManager.Shared", "ArticlesManager.Shared\ArticlesManager.Shared.csproj", "{A55B1013-3715-4A6B-B275-761217219FF0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{9DFEE295-0913-4FB4-9470-BE8DBA04C0D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9DFEE295-0913-4FB4-9470-BE8DBA04C0D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9DFEE295-0913-4FB4-9470-BE8DBA04C0D3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A55B1013-3715-4A6B-B275-761217219FF0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A55B1013-3715-4A6B-B275-761217219FF0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A55B1013-3715-4A6B-B275-761217219FF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A55B1013-3715-4A6B-B275-761217219FF0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

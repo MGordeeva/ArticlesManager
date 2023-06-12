@@ -1,6 +1,22 @@
-﻿// See https://aka.ms/new-console-template for more information
-using ArticlesSender;
+﻿using ArticlesSender;
+using RabbitMQ.Client;
 
-Console.WriteLine("Sender started");
+internal class Program
+{
+    private static void Main(string[] args)
+    {
+        Console.WriteLine("Sender started");
 
-Sender.Send();
+        Sender sender = new Sender();
+        IConnection connection = sender.GetRabbitMqConnection();
+        IModel model = connection.CreateModel();
+        model.QueueDeclare("ChunkedMessageBufferedQueue", true, false, false, null);
+
+        Console.WriteLine("Please, enter path to your image.");
+        var filePath = Console.ReadLine();
+        sender.RunChunkedMessageExample(model, filePath);
+
+        Console.WriteLine(" Press [enter] to exit.");
+        Console.ReadLine();
+    }
+}
