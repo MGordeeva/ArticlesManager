@@ -1,5 +1,20 @@
-﻿// See https://aka.ms/new-console-template for more information
-using ArticlesReceiver;
+﻿using ArticlesReceiver;
+using RabbitMQ.Client;
 
-Console.WriteLine("Receiver started");
-Receiver.Receive();
+internal class Program
+{
+    private static void Main(string[] args)
+    {
+        Console.WriteLine("Receiver started");
+        Receiver receiver = new Receiver();
+
+        IConnection connection = receiver.GetRabbitMqConnection();
+        IModel model = connection.CreateModel();
+        Console.WriteLine("Please, enter file path for new image.");
+        var filePath = Console.ReadLine();
+        receiver.ReceiveChunkedMessages(model, filePath);
+
+        Console.WriteLine(" Press [enter] to exit.");
+        Console.ReadLine();
+    }
+}

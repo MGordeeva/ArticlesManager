@@ -1,13 +1,15 @@
 ﻿using RabbitMQ.Client.Events;
 using RabbitMQ.Client;
-using System.Text;
 using System.Configuration;
+using ArticlesManager.Shared;
+using System.Drawing;
+using System.Drawing.Imaging;
 
 namespace ArticlesReceiver
 {
     internal class Receiver
     {
-        public static void Receive()
+        public IConnection GetRabbitMqConnection()
         {
             var factory = new ConnectionFactory
             {
@@ -17,30 +19,55 @@ namespace ArticlesReceiver
                 UserName = ConfigurationManager.AppSettings.Get("UserName"),
             };
 
-            using var connection = factory.CreateConnection();
-            using var channel = connection.CreateModel();
+            return factory.CreateConnection();
+        }
 
-            channel.QueueDeclare(queue: ConfigurationManager.AppSettings.Get("QueueName"),
-                                 durable: false,
-                                 exclusive: false,
-                                 autoDelete: false,
-                                 arguments: null);
+        public void ReceiveChunkedMessages(IModel model, string filePath)
+        {
+            model.QueueDeclare(queue: "ChunkedMessageBufferedQueue",
+                               durable: true,
+                               exclusive: false,
+                               autoDelete: false,
+                               arguments: null);
 
-            Console.WriteLine(" [*] Waiting for messages.");
+            var consumer = new EventingBasicConsumer(model);
 
-            var consumer = new EventingBasicConsumer(channel);
+            var bytes = new List<byte>();
+
             consumer.Received += (model, ea) =>
             {
+                Console.WriteLine("Received a chunk!");
                 var body = ea.Body.ToArray();
-                var message = Encoding.UTF8.GetString(body);
-                Console.WriteLine($" [x] Received {message}");
-            };
-            channel.BasicConsume(queue: "hello",
-                                 autoAck: true,
-                                 consumer: consumer);
+                var headers = ea.BasicProperties.Headers;
+                bool isLastChunk = Convert.ToBoolean(headers["finished"]);
 
-            Console.WriteLine(" Press [enter] to exit.");
-            Console.ReadLine();
+                using (MemoryStream fileStream = new MemoryStream())
+                {
+                    bytes.AddRange(body);
+                    fileStream.Write(body, 0, body.Length);
+
+                    fileStream.Flush();
+                }
+                Console.WriteLine("Chunk saved. Finished? {0}", isLastChunk);
+                if (bytes.Any() && isLastChunk)
+                {
+                    try
+                    {
+                        var compressedImageBytes = ImageHelper.ReduceImageSize(bytes.ToArray());
+                        var compressedImage = Image.FromStream(new MemoryStream(compressedImageBytes.ToArray()));
+                        compressedImage.Save(filePath, ImageFormat.Jpeg);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e.Message);
+                        throw;
+                    }
+                }
+            };
+
+            model.BasicConsume(queue: "ChunkedMessageBufferedQueue",
+                               autoAck: true,
+                               consumer: consumer);
         }
     }
 }
